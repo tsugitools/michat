@@ -82,7 +82,7 @@ $sql = "SELECT displayname, image
     JOIN {$CFG->dbprefix}lti_user AS U ON P.user_id = U.user_id
     WHERE link_id = :link_id
       AND P.user_id <> :user_id
-      AND P.created_at >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL :pres_max SECOND)
+      AND P.updated_at >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL :pres_max SECOND)
 ";
 
 $values = array(
@@ -109,7 +109,7 @@ if ( $debug || (time() % 100) < 5 ) {
 
     // Presence should never be > 60 seconds anywhere
     $sql = "DELETE FROM {$CFG->dbprefix}michat_present
-        WHERE created_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL :max SECOND)
+        WHERE updated_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL :max SECOND)
     ";
 
     $values = array(

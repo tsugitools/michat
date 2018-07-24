@@ -10,6 +10,15 @@ $LTI = LTIX::requireData();
 
 // Render view
 $OUTPUT->header();
+?>
+<style>
+@media only screen and (max-width: 600px) {
+    #present_top {
+        display:none;
+    }
+}
+</style>
+<?php
 $OUTPUT->bodyStart();
 $OUTPUT->topNav();
 
@@ -22,6 +31,10 @@ $OUTPUT->welcomeUserCourse();
   <span id="spinner" class="fa fa-spinner fa-pulse" style="display:none;"></span>
 </form>
 </p>
+
+<div id="present_top" style="float: right; width: 20%;">
+<div id="present_top_content" style="width: 100%;"></div>
+</div>
 
 <div id="chatcontent">
     <span class="fa fa-spinner fa-pulse"></span>
@@ -61,6 +74,19 @@ function handleMessages(data) {
                 ' ' + htmlentities(arow.relative) +
                 '<br/>&nbsp;&nbsp;'+htmlentities(arow.message)+'<br clear="all"></p>\n';
             $('#chatcontent').prepend(newtext);
+          }
+      }
+      if ( data.present ) {
+           $('#present_top_content').empty();
+          for (var i = 0; i < data.present.length; i++) {
+            var arow = data.present[i];
+            var newtext = '<p>';
+            if ( arow.image && arow.image.length > 1) {
+                newtext += '<img src="'+encodeURI(arow.image)+'" width="20px" style="padding:3px;"/> ';
+            }
+
+            newtext += '\n' + htmlentities(arow.displayname) + '</p>\n';
+            $('#present_top_content').append(newtext);
           }
       }
       _SIMPLECHAT_TIMER = setTimeout('doPoll()', 8000);
