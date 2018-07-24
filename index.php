@@ -12,6 +12,10 @@ $LTI = LTIX::requireData();
 $OUTPUT->header();
 ?>
 <style>
+#present_top {
+    background-color: #F0F0F0;
+}
+
 @media only screen and (max-width: 600px) {
     #present_top {
         display:none;
@@ -80,12 +84,12 @@ function handleMessages(data) {
            $('#present_top_content').empty();
           for (var i = 0; i < data.present.length; i++) {
             var arow = data.present[i];
-            var newtext = '<p>';
+            var newtext = '';
             if ( arow.image && arow.image.length > 1) {
                 newtext += '<img src="'+encodeURI(arow.image)+'" width="20px" style="padding:3px;"/> ';
             }
 
-            newtext += '\n' + htmlentities(arow.displayname) + '</p>\n';
+            newtext += '\n' + htmlentities(arow.displayname) + '<br/>\n';
             $('#present_top_content').append(newtext);
           }
       }
