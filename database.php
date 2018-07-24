@@ -3,7 +3,7 @@
 // The SQL to uninstall this tool
 $DATABASE_UNINSTALL = array(
   "drop table if exists {$CFG->dbprefix}michat_message",
-  "drop table if exists {$CFG->dbprefix}michat_presence;"
+  "drop table if exists {$CFG->dbprefix}michat_present;"
 );
 
 $DATABASE_INSTALL = array(
@@ -35,8 +35,8 @@ $DATABASE_INSTALL = array(
 
   // No foreign keys because this data is ephemeral and
   // does not participate in any kind of import / export
-  array( "{$CFG->dbprefix}michat_presence",
-  "CREATE TABLE `{$CFG->dbprefix}michat_presence` (
+  array( "{$CFG->dbprefix}michat_present",
+  "CREATE TABLE `{$CFG->dbprefix}michat_present` (
     link_id             INTEGER NOT NULL,
     user_id             INTEGER NOT NULL,
 

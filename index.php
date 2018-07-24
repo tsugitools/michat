@@ -16,24 +16,25 @@ $OUTPUT->topNav();
 $OUTPUT->welcomeUserCourse();
 
 ?>
+<p>
 <form action="message.php" id="messageForm">
-  <input type="text" name="message" placeholder="Message...">
-  <input type="submit" value="Send">
+  <input type="text" name="message" style="width:80%;" placeholder="Message...">
+  <span id="spinner" class="fa fa-spinner fa-pulse" style="display:none;"></span>
 </form>
-
-<div id="result"></div>
+</p>
 
 <div id="chatcontent">
-    <span id="spinner" class="fa fa-spinner fa-pulse"></span>
+    <span class="fa fa-spinner fa-pulse"></span>
 </div>
 
 <?php
 $OUTPUT->footerStart();
 ?>
- 
+
 <script>
 
 var _SIMPLECHAT_LAST_MICRO_TIME = 0;
+var _SIMPLECHAT_TIMER = false;
 
 // https://stackoverflow.com/questions/18749591/encode-html-entities-in-javascript
 if (typeof htmlentities != 'function')
@@ -46,8 +47,6 @@ function htmlentities(raw) {
 }
 
 function handleMessages(data) {
-      window.console && console.log('JSON Received'); 
-      window.console && console.log(data);
       if ( _SIMPLECHAT_LAST_MICRO_TIME == 0 ) $('#chatcontent').empty();
       if ( data.messages ) {
           for (var i = 0; i < data.messages.length; i++) {
@@ -59,42 +58,52 @@ function handleMessages(data) {
             }
 
             newtext += '\n' + htmlentities(arow.displayname) +
-                ' ' + htmlentities(arow.relative) + 
+                ' ' + htmlentities(arow.relative) +
                 '<br/>&nbsp;&nbsp;'+htmlentities(arow.message)+'<br clear="all"></p>\n';
             $('#chatcontent').prepend(newtext);
           }
       }
-      setTimeout('updateMsg()', 4000);
+      _SIMPLECHAT_TIMER = setTimeout('doPoll()', 8000);
 }
 
 // https://api.jquery.com/jquery.post/
 // Attach a submit handler to the form
 $( "#messageForm" ).submit(function( event ) {
- 
+
+  $("#spinner").show();
+
   // Stop form from submitting normally
   event.preventDefault();
- 
+
   // Get some values from elements on the page:
   var $form = $( this ),
     term = $form.find( "input[name='message']" ).val(),
     session = $form.find( "input[name='PHPSESSID']" ).val(),
     url = $form.attr( "action" );
- 
+
+    $form.find( "input[name='message']" ).val('');
+
+  if ( term.len < 1 ) {
+    $("#spinner").hide();
+    return;
+  }
+
+  if ( _SIMPLECHAT_TIMER ) clearTimeout(_SIMPLECHAT_TIMER);
+  _SIMPLECHAT_TIMER = false;
+
   // Send the data using post
-  var posting = $.post( url, 
+  var posting = $.post( url,
     { message: term, PHPSESSID: session, since: _SIMPLECHAT_LAST_MICRO_TIME } );
- 
+
   // Put the results in a div
   posting.done(function( data ) {
-    handleMessages(data);
+    doPoll();
+    $("#spinner").hide();
   });
+
 });
-</script>
 
-<script type="text/javascript">
-
-function updateMsg() {
-  window.console && console.log('Requesting JSON'); 
+function doPoll() {
   var messageurl = addSession('message.php?since='+_SIMPLECHAT_LAST_MICRO_TIME);
   $.getJSON(messageurl, function(data){
     handleMessages(data);
@@ -104,7 +113,7 @@ function updateMsg() {
 // Make sure JSON requests are not cached
 $(document).ready(function() {
   $.ajaxSetup({ cache: false });
-  updateMsg();
+  doPoll();
 });
 </script>
 
