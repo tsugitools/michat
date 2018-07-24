@@ -16,7 +16,7 @@ $micro_now = microtime(true);
 $message = U::get($_POST, 'message');
 if ( is_string($message) && strlen($message) > 0 ) {
 
-    $sql = "INSERT INTO {$CFG->dbprefix}simplechat_message
+    $sql = "INSERT INTO {$CFG->dbprefix}michat_message
         (link_id, user_id, message, micro_time ) VALUES
         (:link_id, :user_id, :message, :micro_now )
         ON DUPLICATE KEY UPDATE message=:message
@@ -34,7 +34,7 @@ $since = U::get($_GET, 'since', 0);
 if ( ! is_numeric($since) ) $since = 0;
 
 $sql = "SELECT message, displayname, image, M.created_at, NOW() AS relative, micro_time
-    FROM {$CFG->dbprefix}simplechat_message AS M
+    FROM {$CFG->dbprefix}michat_message AS M
     JOIN {$CFG->dbprefix}lti_user AS U ON M.user_id = U.user_id
     WHERE link_id = :link_id 
       AND micro_time > :since AND
@@ -62,7 +62,7 @@ for($i=0; $i < count($rows); $i++ ) {
 // Cleanup
 $debug = false;
 if ( $debug || (time() % 100) < 5 ) {
-    $sql = "DELETE FROM {$CFG->dbprefix}simplechat_message
+    $sql = "DELETE FROM {$CFG->dbprefix}michat_message
         WHERE created_at < DATE_SUB(CURRENT_TIMESTAMP, INTERVAL :max SECOND)
     ";
 
