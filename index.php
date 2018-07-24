@@ -36,10 +36,13 @@ $OUTPUT->footerStart();
 var _SIMPLECHAT_LAST_MICRO_TIME = 0;
 
 // https://stackoverflow.com/questions/18749591/encode-html-entities-in-javascript
+if (typeof htmlentities != 'function')
+{
 function htmlentities(raw) {
     var span = document.createElement("span");
     span.textContent = raw;
     return span.innerHTML;
+}
 }
 
 function handleMessages(data) {
