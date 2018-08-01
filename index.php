@@ -36,6 +36,11 @@ $OUTPUT->welcomeUserCourse();
 </form>
 </p>
 
+<div id="websocket_on" style="display: none; position:fixed; right:10px; top: 10px;">
+    <i class="fa fa-link" style="color:green;" onclick="alert('Using WebSockets');" 
+     alt="Using Web Sockets"></i>
+</div>
+
 <div id="present_top" style="float: right; width: 20%;">
 <div id="present_top_content" style="width: 100%;"></div>
 </div>
@@ -71,9 +76,11 @@ function startTimer() {
   if ( _SIMPLECHAT_SOCKET && _SIMPLECHAT_SOCKET.readyState == 1 ) {
     if ( _SIMPLECHAT_TIMEOUT == 5000 ) console.log('Switching to long timer...');
     _SIMPLECHAT_TIMEOUT = 55000;
+    $('#websocket_on').show();
   } else {
     if ( _SIMPLECHAT_TIMEOUT == 55000 ) console.log('Switching to short timer...');
     _SIMPLECHAT_TIMEOUT = 5000;
+    $('#websocket_on').hide();
   }
   _SIMPLECHAT_TIMER = setTimeout('doPoll()', _SIMPLECHAT_TIMEOUT);
 }
