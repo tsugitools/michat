@@ -63,6 +63,21 @@ function htmlentities(raw) {
 }
 }
 
+var _SIMPLECHAT_TIMEOUT = 5000;
+
+// If we have an active web socket, poll only every 55 seconds.
+// We could have no timer at all, except presence expires in 60 sec
+function startTimer() {
+  if ( _SIMPLECHAT_SOCKET && _SIMPLECHAT_SOCKET.readyState == 1 ) {
+    if ( _SIMPLECHAT_TIMEOUT == 5000 ) console.log('Switching to long timer...');
+    _SIMPLECHAT_TIMEOUT = 55000;
+  } else {
+    if ( _SIMPLECHAT_TIMEOUT == 55000 ) console.log('Switching to short timer...');
+    _SIMPLECHAT_TIMEOUT = 5000;
+  }
+  _SIMPLECHAT_TIMER = setTimeout('doPoll()', _SIMPLECHAT_TIMEOUT);
+}
+
 function handleMessages(data) {
       if ( _SIMPLECHAT_LAST_MICRO_TIME == 0 ) $('#chatcontent').empty();
       if ( data.messages ) {
@@ -93,8 +108,36 @@ function handleMessages(data) {
             $('#present_top_content').append(newtext);
           }
       }
-      _SIMPLECHAT_TIMER = setTimeout('doPoll()', 8000);
+
+      startTimer();
 }
+
+function doPoll() {
+  var messageurl = addSession('message.php?since='+_SIMPLECHAT_LAST_MICRO_TIME);
+  $.getJSON(messageurl, function(data){
+    handleMessages(data);
+  });
+}
+
+// Open a notification socket if it is available
+_SIMPLECHAT_SOCKET = tsugiNotifySocket(14);  // False on failure
+_SIMPLECHAT_SOCKET.onopen = function(evt) {
+    console.log('Socket Opened');
+    if ( _SIMPLECHAT_TIMER ) {
+        clearTimeout(_SIMPLECHAT_TIMER);
+        startTimer();
+    }
+}
+
+_SIMPLECHAT_SOCKET.onmessage = function(evt) {
+    console.log('Got message',evt.data);
+    doPoll();
+};
+
+_SIMPLECHAT_SOCKET.onclose = function(evt) {
+    console.log('Web socket closed',_SIMPLECHAT_SOCKET.readyState,evt.data);
+    doPoll();
+};
 
 // https://api.jquery.com/jquery.post/
 // Attach a submit handler to the form
@@ -127,18 +170,16 @@ $( "#messageForm" ).submit(function( event ) {
 
   // Put the results in a div
   posting.done(function( data ) {
+    // Notiy our pals with a web socket is we have one.
+    if ( _SIMPLECHAT_SOCKET && _SIMPLECHAT_SOCKET.readyState == 1 ) {
+       console.log('Sending notification'); 
+       _SIMPLECHAT_SOCKET.send('Update');
+    }
     doPoll();
     $("#spinner").hide();
   });
 
 });
-
-function doPoll() {
-  var messageurl = addSession('message.php?since='+_SIMPLECHAT_LAST_MICRO_TIME);
-  $.getJSON(messageurl, function(data){
-    handleMessages(data);
-  });
-}
 
 // Make sure JSON requests are not cached
 $(document).ready(function() {
