@@ -127,7 +127,7 @@ function doPoll() {
 }
 
 // Open a notification socket if it is available
-_SIMPLECHAT_SOCKET = tsugiNotifySocket(14);  // False on failure
+_SIMPLECHAT_SOCKET = tsugiNotifySocket();  // False on failure
 _SIMPLECHAT_SOCKET.onopen = function(evt) {
     console.log('Socket Opened');
     if ( _SIMPLECHAT_TIMER ) {
