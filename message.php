@@ -52,7 +52,7 @@ $since = U::get($_POST, 'since', $since);
 if ( ! is_numeric($since) ) $since = 0;
 
 $sql = "SELECT message, displayname, image, M.created_at, NOW() AS relative, micro_time,
-        DATE_FORMAT(M.created_at, '%Y-%m-%dT%T') AS created_iso8601
+        DATE_FORMAT(M.created_at, '%Y-%m-%dT%T') AS created_iso8601, NOW() as now
     FROM {$CFG->dbprefix}michat_message AS M
     JOIN {$CFG->dbprefix}lti_user AS U ON M.user_id = U.user_id
     WHERE link_id = :link_id
@@ -75,6 +75,14 @@ for($i=0; $i < count($rows); $i++ ) {
     $m = new \Moment\Moment($timestamp);
     $relative = $m->from($relative);
     $rows[$i]['relative'] = $relative->getRelative();
+
+    $dcr = new \DateTime($rows[$i]['created_at']);
+    $dnow = new \DateTime($rows[$i]['now']);
+    $diff = $dnow->diff($dcr);
+    $utc = new DateTime('now', new DateTimeZone('UTC'));
+    $utc->sub($diff);
+    $y = $utc->format('Y-m-d\TH:i:s\Z');
+    $rows[$i]['created_iso8601'] = $y;
 }
 
 
