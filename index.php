@@ -97,8 +97,9 @@ function handleMessages(data) {
             }
 
             newtext += '\n' + htmlentities(arow.displayname) +
-                ' <time class="timeago" datetime="' + htmlentities(arow.created_iso8601) + '">' +
+                ' <time class="timeago" datetime="' + htmlentities(arow.created_iso8601_utc) + '">' +
                 $.timeago(arow.created_iso8601_utc) + "</time>" +
+                // ' <!-- utc_time="' + htmlentities(arow.created_iso8601_utc) + '"-->' +
                 '<br/>&nbsp;&nbsp;'+htmlentities(arow.message)+'<br clear="all"></p>\n';
             $('#chatcontent').prepend(newtext);
           }
