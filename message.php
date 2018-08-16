@@ -51,7 +51,8 @@ $since = U::get($_POST, 'since', $since);
 
 if ( ! is_numeric($since) ) $since = 0;
 
-$sql = "SELECT message, displayname, image, M.created_at, NOW() AS now, micro_time
+$sql = "SELECT message, displayname, image, M.created_at, micro_time,
+    TIMESTAMPDIFF(SECOND, M.created_at, NOW()) AS seconds
     FROM {$CFG->dbprefix}michat_message AS M
     JOIN {$CFG->dbprefix}lti_user AS U ON M.user_id = U.user_id
     WHERE link_id = :link_id
@@ -69,13 +70,10 @@ $values = array(
 $rows = $PDOX->allRowsDie($sql, $values);
 
 for($i=0; $i < count($rows); $i++ ) {
-    $dcr = new \DateTime($rows[$i]['created_at']);
-    $dnow = new \DateTime($rows[$i]['now']);
-    $diff = $dnow->diff($dcr);
-    $utc = new DateTime('now', new DateTimeZone('UTC'));
-    $utc->sub($diff);
+    $sec = $rows[$i]['seconds'];
+    $utc = new DateTime($sec.' seconds ago', new DateTimeZone('UTC'));
     $y = $utc->format('Y-m-d\TH:i:s\Z');
-    $rows[$i]['created_iso8601'] = $y;
+    $rows[$i]['created_iso8601_utc'] = $y;
 }
 
 
