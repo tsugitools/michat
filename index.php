@@ -97,10 +97,13 @@ function handleMessages(data) {
             }
 
             newtext += '\n' + htmlentities(arow.displayname) +
-                ' ' + htmlentities(arow.relative) +
+                // ' ' + htmlentities(arow.created_iso8601) +
+                ' <time class="timeago" datetime="' + htmlentities(arow.created_iso8601) + '">' +
+                $.timeago(arow.created_iso8601) + "</time>" +
                 '<br/>&nbsp;&nbsp;'+htmlentities(arow.message)+'<br clear="all"></p>\n';
             $('#chatcontent').prepend(newtext);
           }
+          $("time.timeago").timeago();
       }
       if ( data.present ) {
            $('#present_top_content').empty();
@@ -191,6 +194,7 @@ $( "#messageForm" ).submit(function( event ) {
 // Make sure JSON requests are not cached
 $(document).ready(function() {
   $.ajaxSetup({ cache: false });
+  $("time.timeago").timeago();
   doPoll();
 });
 </script>

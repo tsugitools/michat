@@ -51,7 +51,8 @@ $since = U::get($_POST, 'since', $since);
 
 if ( ! is_numeric($since) ) $since = 0;
 
-$sql = "SELECT message, displayname, image, M.created_at, NOW() AS relative, micro_time
+$sql = "SELECT message, displayname, image, M.created_at, NOW() AS relative, micro_time,
+        DATE_FORMAT(M.created_at, '%Y-%m-%dT%T') AS created_iso8601
     FROM {$CFG->dbprefix}michat_message AS M
     JOIN {$CFG->dbprefix}lti_user AS U ON M.user_id = U.user_id
     WHERE link_id = :link_id
